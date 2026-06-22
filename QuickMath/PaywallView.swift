@@ -7,10 +7,9 @@ struct PaywallView: View {
     @State private var restoreMessage: String?
 
     private let benefits: [(String, String, String)] = [
-        ("calendar", "Daily grid archive", "Replay every past day's logic grid, all the way back."),
-        ("square.grid.3x3.fill", "Bigger grids", "Step up to tougher 5x5 and 6x6 deduction puzzles."),
-        ("brain.head.profile", "An expert grid daily", "A second, harder hand-made grid every single day."),
-        ("lightbulb.fill", "Hints & themes", "Nudge tokens when you're stuck, plus board themes.")
+        ("calendar", "The full archive", "Open and reflect on any past day's reading, all the way back to the start."),
+        ("book.closed", "Your journal", "Every reflection you write, gathered privately in one place to revisit."),
+        ("square.and.pencil", "Journal any day", "Write on past reflections too, not only today's.")
     ]
 
     var body: some View {
@@ -19,10 +18,10 @@ struct PaywallView: View {
             ScrollView {
                 VStack(spacing: 22) {
                     VStack(spacing: 8) {
-                        Image(systemName: "sparkles")
+                        Image(systemName: "leaf")
                             .font(.system(size: 40, weight: .semibold))
                             .foregroundStyle(Color.qmAccent)
-                        Text("Lattice Pro").font(.largeTitle.weight(.heavy))
+                        Text("Stoa Pro").font(.largeTitle.weight(.heavy))
                         Text("$0.99 / month. Auto-renews until you cancel.")
                             .font(.subheadline).foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -51,7 +50,7 @@ struct PaywallView: View {
                         Button { Task { await buy() } } label: {
                             HStack {
                                 if working { ProgressView().tint(.white) }
-                                Text(working ? "Unlocking…" : "Unlock Lattice Pro · \(store.displayPrice)")
+                                Text(working ? "Unlocking…" : "Unlock Stoa Pro · \(store.displayPrice)")
                                     .font(.headline)
                             }
                             .frame(maxWidth: .infinity).padding(.vertical, 6)
@@ -67,17 +66,17 @@ struct PaywallView: View {
                             Text(restoreMessage).font(.footnote).foregroundStyle(.secondary)
                         }
 
-                        Text("Lattice Pro is a $0.99/month subscription that renews automatically unless canceled at least 24 hours before the period ends. Payment is charged to your Apple Account; manage or cancel anytime in Settings.")
+                        Text("Stoa Pro is a $0.99/month subscription that renews automatically unless canceled at least 24 hours before the period ends. Payment is charged to your Apple Account; manage or cancel anytime in Settings.")
                             .font(.footnote).foregroundStyle(.secondary)
                             .multilineTextAlignment(.center).padding(.top, 4)
 
                         HStack(spacing: 16) {
                             Link("Terms of Use", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
-                            Link("Privacy Policy", destination: URL(string: "https://shimondeitel.github.io/lattice-site/privacy.html")!)
+                            Link("Privacy Policy", destination: URL(string: "https://shimondeitel.github.io/stoa-site/privacy.html")!)
                         }
                         .font(.footnote).tint(Color.qmAccent)
 
-                        Text("Lattice never tracks you. Your progress stays on your device.")
+                        Text("Stoa never tracks you. Your reflections stay on your device.")
                             .font(.footnote).foregroundStyle(.secondary)
                             .multilineTextAlignment(.center).padding(.top, 4)
                     }

@@ -1,12 +1,12 @@
 import SwiftUI
 
-/// Pro: replay any previous day's grid.
+/// Pro: read (and journal) any previous day's reflection.
 struct ArchiveView: View {
     @EnvironmentObject var appModel: AppModel
     @Environment(\.dismiss) private var dismiss
-    @State private var play: PlaySpec?
+    @State private var read: ReadSpec?
 
-    private let days = 1...60
+    private let days = 1...90
 
     var body: some View {
         NavigationStack {
@@ -15,38 +15,39 @@ struct ArchiveView: View {
                 ScrollView {
                     VStack(spacing: 10) {
                         ForEach(Array(days), id: \.self) { daysAgo in
-                            if let p = PuzzleBank.daily(daysAgo: daysAgo) {
-                                row(daysAgo: daysAgo, puzzle: p)
+                            if let e = Corpus.daily(daysAgo: daysAgo) {
+                                row(daysAgo: daysAgo, entry: e)
                             }
                         }
                     }
                     .padding()
                 }
             }
-            .navigationTitle("Past Grids")
+            .navigationTitle("Past Reflections")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() }.tint(Color.qmAccent) }
             }
-            .fullScreenCover(item: $play) { spec in
-                GridView(puzzle: spec.puzzle, isExpert: false)
+            .fullScreenCover(item: $read) { spec in
+                ReflectionView(entry: spec.entry, dateKey: spec.dateKey)
             }
         }
     }
 
-    private func row(daysAgo: Int, puzzle: Puzzle) -> some View {
+    private func row(daysAgo: Int, entry: Entry) -> some View {
         let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now) ?? .now
-        let key = PuzzleBank.dateKey(for: date)
-        let solved = appModel.result(forKey: key) != nil
+        let key = Corpus.dateKey(for: date)
+        let journaled = appModel.note(forKey: key) != nil
         return Button {
-            Haptics.tap(); play = PlaySpec(puzzle: puzzle, isExpert: false)
+            Haptics.tap(); read = ReadSpec(entry: entry, dateKey: key)
         } label: {
             HStack(spacing: 14) {
-                Image(systemName: solved ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(solved ? Color.qmCorrect : Color.secondary)
+                Image(systemName: journaled ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(journaled ? Color.qmCorrect : Color.secondary)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(dateLabel(date)).font(.headline).foregroundStyle(.primary)
-                    Text("\(puzzle.rowCategory) · \(puzzle.colCategory)").font(.caption).foregroundStyle(.secondary)
+                    Text(entry.title).font(.headline).foregroundStyle(.primary)
+                        .lineLimit(1)
+                    Text("\(dateLabel(date)) · \(entry.theme)").font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
                 Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.secondary)

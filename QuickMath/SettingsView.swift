@@ -7,7 +7,7 @@ struct SettingsView: View {
 
     @AppStorage("quickmath.theme") private var themeRaw = AppTheme.system.rawValue
     @AppStorage("quickmath.reminderOn") private var reminderOn = false
-    @AppStorage("quickmath.reminderHour") private var reminderHour = 9
+    @AppStorage("quickmath.reminderHour") private var reminderHour = 8
     @AppStorage("quickmath.reminderMinute") private var reminderMinute = 0
 
     @State private var showPaywall = false
@@ -16,7 +16,7 @@ struct SettingsView: View {
 
     private var version: String {
         let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
-        return "Lattice \(v)"
+        return "Stoa \(v)"
     }
 
     private var reminderTime: Binding<Date> {
@@ -24,7 +24,7 @@ struct SettingsView: View {
             get: { Calendar.current.date(from: DateComponents(hour: reminderHour, minute: reminderMinute)) ?? Date() },
             set: { newValue in
                 let c = Calendar.current.dateComponents([.hour, .minute], from: newValue)
-                reminderHour = c.hour ?? 9
+                reminderHour = c.hour ?? 8
                 reminderMinute = c.minute ?? 0
                 if reminderOn { Reminders.schedule(hour: reminderHour, minute: reminderMinute) }
             }
@@ -36,7 +36,7 @@ struct SettingsView: View {
             Form {
                 proSection
                 appearanceSection
-                gridSection
+                reminderSection
                 aboutSection
             }
             .navigationTitle("Settings")
@@ -44,11 +44,11 @@ struct SettingsView: View {
             .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } } }
             .tint(Color.qmAccent)
             .sheet(isPresented: $showPaywall) { PaywallView() }
-            .alert("Erase Progress?", isPresented: $showDeleteConfirm) {
+            .alert("Erase Journal?", isPresented: $showDeleteConfirm) {
                 Button("Erase", role: .destructive) { appModel.deleteAllData(); dismiss() }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("This permanently erases your solved grids and streak on this device. This can't be undone.")
+                Text("This permanently erases every reflection you've written and your streak on this device. This can't be undone.")
             }
         }
     }
@@ -58,13 +58,13 @@ struct SettingsView: View {
         Section {
             if store.isPro {
                 HStack {
-                    Label("Lattice Pro", systemImage: "sparkles")
+                    Label("Stoa Pro", systemImage: "leaf")
                     Spacer(); Text("Active").foregroundStyle(.secondary)
                 }
             } else {
                 Button { Haptics.tap(); showPaywall = true } label: {
                     HStack {
-                        Label("Start Lattice Pro", systemImage: "sparkles")
+                        Label("Start Stoa Pro", systemImage: "leaf")
                         Spacer(); Text("\(store.displayPrice)/mo").foregroundStyle(.secondary)
                     }
                 }
@@ -78,7 +78,7 @@ struct SettingsView: View {
             }
         } footer: {
             if !store.isPro {
-                Text("$0.99/month subscription. The expert daily grid, the full archive of past grids, hints and themes. Auto-renews until canceled.")
+                Text("$0.99/month subscription. The full archive of past reflections and your complete journal history. Auto-renews until canceled.")
             }
         }
     }
@@ -92,8 +92,8 @@ struct SettingsView: View {
         }
     }
 
-    private var gridSection: some View {
-        Section("Daily grid") {
+    private var reminderSection: some View {
+        Section("Daily reflection") {
             Toggle("Daily reminder", isOn: $reminderOn)
                 .onChange(of: reminderOn) { _, on in
                     if on {
@@ -112,9 +112,9 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         Section {
-            Button("Erase Progress", role: .destructive) { showDeleteConfirm = true }
+            Button("Erase Journal", role: .destructive) { showDeleteConfirm = true }
             Link("Terms of Use", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
-            Link("Privacy Policy", destination: URL(string: "https://shimondeitel.github.io/lattice-site/privacy.html")!)
+            Link("Privacy Policy", destination: URL(string: "https://shimondeitel.github.io/stoa-site/privacy.html")!)
         } footer: {
             Text(version).frame(maxWidth: .infinity, alignment: .center).padding(.top, 4)
         }
